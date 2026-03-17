@@ -1,222 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gold Trading Calculator</title>
-<style>
-/* Basic Styles */
-body { font-family:'Segoe UI', Tahoma; background:#f0f2f5; padding:20px; color:#333;}
-h2 { text-align:center; margin-bottom:20px;}
-.calculator, .history, .charts { max-width:700px; margin:auto; background:#fff; padding:20px; border-radius:10px; margin-bottom:20px;}
-label { display:block; margin-top:10px; font-weight:600; }
-input { width:100%; padding:10px; margin-top:5px; border-radius:6px; border:1px solid #ccc; }
-input[readonly] { background:#eee; }
-button { margin-top:15px; padding:10px; width:30%; border:none; border-radius:6px; cursor:pointer; font-weight:bold; }
-#calculate { background:#28a745;color:#fff; } 
-#reset {background:#dc3545;color:#fff;} 
-#exportCSV{background:#007bff;color:#fff;}
-select{padding:8px; border-radius:6px; margin-top:5px;}
-.history-list{max-height:300px; overflow:auto; margin-top:10px;}
-.history-item{display:grid; grid-template-columns: repeat(10,1fr) 60px; gap:5px; margin-top:5px;}
-.history-item div{background:#e3e3e3; padding:5px; text-align:center; border-radius:5px; font-size:12px;}
-.dark-mode{background:#1e1e1e;color:#f0f0f0;}
-.dark-mode .calculator,.dark-mode .history,.dark-mode .charts{background:#2c2c2c;}
-.dark-mode input{background:#444;color:#fff;border:1px solid #666;}
-.dark-mode button{color:#fff;}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gold Trading Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+    }
+    .calculator {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      max-width: 400px;
+      width: 100%;
+    }
+    h2 { text-align: center; }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    label { flex: 1; padding-right: 10px; }
+    input {
+      flex: 1;
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover { background: #0056b3; }
+    .result { margin-top: 20px; padding: 10px; background: #e2f0ff; border-radius: 8px; }
+  </style>
 </head>
 <body>
 
-<h2>Gold Trading Calculator</h2>
-
-<!-- Permission check -->
-<script>
-const allowedPassword = "MySecret123"; // Change this to your password
-let tries = 3;
-function askPassword(){
-    let input = prompt("Enter your permission password to use the calculator:");
-    if(input === allowedPassword){
-        alert("Access granted ✅");
-    } else {
-        tries--;
-        if(tries>0){ alert("Wrong password! Tries left: "+tries); askPassword(); }
-        else{ document.body.innerHTML="<h2>Access Denied ❌ You need permission to use this calculator.</h2>"; }
-    }
-}
-askPassword();
-</script>
-
-<!-- Mode & Dark Mode -->
-<label>Aggressive / Safe Mode:
-<select id="modeSelect">
-<option value="safe">Safe</option>
-<option value="aggressive">Aggressive</option>
-</select>
-</label>
-<label>Dark Mode:
-<select id="darkModeSelect">
-<option value="off">Off</option>
-<option value="on">On</option>
-</select>
-</label>
-
 <div class="calculator">
-<label>Date: <input type="date" id="calcDate"></label>
-<label>Total Equity ($): <input type="number" id="totalEquity"></label>
-<label>Previous Profit ($): <input type="number" id="prevProfit"></label>
-<label>Stop Loss (pips): <input type="number" id="stopLoss"></label>
-<label>Next Lot: <input type="text" id="nextLot" readonly></label>
-<label>Pip Value: <input type="text" id="pipValue" readonly></label>
-<label>Remaining Balance: <input type="text" id="remainingBalance" readonly></label>
-<div style="display:flex; justify-content:space-between;">
-<button id="calculate">Calculate</button>
-<button id="reset">Reset</button>
-<button id="exportCSV">Export CSV</button>
-</div>
-</div>
+  <h2>Gold Trading Calculator</h2>
 
-<div class="history">
-<h3>Calculation History</h3>
-<div class="history-filters">
-<button data-filter="today">Today</button>
-<button data-filter="yesterday">Yesterday</button>
-<button data-filter="7days">Last 7 Days</button>
-<button data-filter="30days">Last 30 Days</button>
-<button data-filter="all">All</button>
-</div>
-<div class="history-list" id="historyList"></div>
-</div>
+  <div class="row">
+    <label for="totalEquity">Total Equity ($):</label>
+    <input type="number" id="totalEquity" placeholder="3000">
+  </div>
 
-<div class="charts">
-<h3>Performance Charts</h3>
-<canvas id="weeklyChart" height="150"></canvas>
-<canvas id="monthlyChart" height="150" style="margin-top:20px;"></canvas>
-</div>
+  <div class="row">
+    <label for="previousLot">Previous Lot Size:</label>
+    <input type="number" id="previousLot" placeholder="0.01">
+  </div>
 
-<!-- Chart.js CDN -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <div class="row">
+    <label for="lastProfit">Last Trade Profit ($):</label>
+    <input type="number" id="lastProfit" placeholder="0">
+  </div>
+
+  <div class="row">
+    <label for="stopLoss">Stop Loss (pips):</label>
+    <input type="number" id="stopLoss" placeholder="20">
+  </div>
+
+  <div class="row">
+    <label for="pipValue">Gold Pip Value:</label>
+    <input type="number" id="pipValue" value="1" placeholder="1">
+  </div>
+
+  <button onclick="calculateLot()">Calculate Next Lot</button>
+
+  <div class="result" id="result">
+    Your results will appear here.
+  </div>
+</div>
 
 <script>
-// Darwin Time
-function getDarwinTime(){ return new Date().toLocaleTimeString('en-AU',{timeZone:'Australia/Darwin',hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
+function calculateLot() {
+  let totalEquity = parseFloat(document.getElementById('totalEquity').value) || 0;
+  let previousLot = parseFloat(document.getElementById('previousLot').value) || 0;
+  let lastProfit = parseFloat(document.getElementById('lastProfit').value) || 0;
+  let stopLoss = parseFloat(document.getElementById('stopLoss').value) || 0;
+  let pipValue = parseFloat(document.getElementById('pipValue').value) || 1;
 
-// Disable Service Worker (online-only)
-if('serviceWorker' in navigator){ navigator.serviceWorker.getRegistrations().then(r=>r.forEach(reg=>reg.unregister())); }
+  // Risk 1% of equity by default
+  let riskPerTrade = totalEquity * 0.01;
 
-// Format Date
-function formatDate(d){ return d.toISOString().split('T')[0]; }
-function parseDate(str){ return new Date(str+'T00:00:00'); }
+  // Next Lot calculation
+  let nextLot = (riskPerTrade / (stopLoss * pipValue)) + previousLot;
+  let newEquity = totalEquity + lastProfit;
 
-document.getElementById("calcDate").valueAsDate = new Date();
-
-// Load History
-function loadHistory(filter='all'){
-    const history = JSON.parse(localStorage.getItem("calcHistory")||"[]");
-    const list = document.getElementById("historyList");
-    list.innerHTML = "";
-    const today = new Date(), yesterday=new Date(), sevenDaysAgo=new Date(), thirtyDaysAgo=new Date();
-    yesterday.setDate(today.getDate()-1); sevenDaysAgo.setDate(today.getDate()-7); thirtyDaysAgo.setDate(today.getDate()-30);
-    history.forEach((item,index)=>{
-        const itemDate=parseDate(item.date);
-        if(filter==='today' && formatDate(itemDate)!==formatDate(today)) return;
-        if(filter==='yesterday' && formatDate(itemDate)!==formatDate(yesterday)) return;
-        if(filter==='7days' && itemDate<sevenDaysAgo) return;
-        if(filter==='30days' && itemDate<thirtyDaysAgo) return;
-        const div=document.createElement("div"); div.className="history-item";
-        div.innerHTML=`<div>${item.date}</div><div>${item.time}</div><div>${item.equity}</div><div>${item.profit}</div><div>${item.sl}</div><div>${item.lot}</div><div>${item.pip}</div><div>${item.remaining}</div><button data-index="${index}">Del</button>`;
-        list.appendChild(div);
-    });
-    document.querySelectorAll('.history-item button').forEach(btn=>btn.onclick=()=>{deleteItem(parseInt(btn.dataset.index))});
+  document.getElementById('result').innerHTML = `
+    <b>Next Lot Size:</b> ${nextLot.toFixed(2)}<br>
+    <b>New Equity After Trade:</b> $${newEquity.toFixed(2)}
+  `;
 }
-
-// Save History
-function saveHistory(data){
-    const history=JSON.parse(localStorage.getItem("calcHistory")||"[]");
-    history.unshift(data);
-    if(history.length>200) history.pop();
-    localStorage.setItem("calcHistory",JSON.stringify(history));
-    loadHistory();
-}
-
-// Delete Item
-function deleteItem(i){
-    const history=JSON.parse(localStorage.getItem("calcHistory")||"[]");
-    history.splice(i,1);
-    localStorage.setItem("calcHistory",JSON.stringify(history));
-    loadHistory();
-}
-
-// Calculate
-document.getElementById("calculate").onclick=()=>{
-    const date=document.getElementById("calcDate").value;
-    const totalEquity=parseFloat(document.getElementById("totalEquity").value)||0;
-    const prevProfit=parseFloat(document.getElementById("prevProfit").value)||0;
-    const stopLoss=parseFloat(document.getElementById("stopLoss").value)||1;
-    const mode=document.getElementById("modeSelect").value;
-
-    const equityRisk = totalEquity*0.02;
-    let riskFromEquity = equityRisk*0.6, riskFromProfit=prevProfit*0.4;
-    if(mode==='aggressive'){ riskFromEquity*=1.5; riskFromProfit*=1.5; }
-    const totalRisk = riskFromEquity+riskFromProfit;
-
-    const nextLot = totalRisk/(stopLoss*10);
-    const pipValue = nextLot*10;
-    const remainingBalance = prevProfit-riskFromProfit;
-
-    document.getElementById("nextLot").value = nextLot.toFixed(2);
-    document.getElementById("pipValue").value = pipValue.toFixed(2);
-    document.getElementById("remainingBalance").value = remainingBalance.toFixed(2);
-
-    saveHistory({date,date,time:getDarwinTime(),equity:totalEquity.toFixed(2),profit:prevProfit.toFixed(2),sl:stopLoss,lot:nextLot.toFixed(2),pip:pipValue.toFixed(2),remaining:remainingBalance.toFixed(2)});
-    updateCharts();
-};
-
-// Reset
-document.getElementById("reset").onclick=()=>{document.querySelectorAll("input").forEach(i=>{if(!i.readOnly)i.value='';});};
-
-// Filters
-document.querySelectorAll('.history-filters button').forEach(btn=>{ btn.onclick=()=>loadHistory(btn.dataset.filter); });
-
-// Export CSV
-document.getElementById("exportCSV").onclick=()=>{
-    const history = JSON.parse(localStorage.getItem("calcHistory")||"[]");
-    if(history.length===0){alert("No history!"); return;}
-    const headers=["Date","Time","Equity","Profit","SL","Next Lot","Pip Value","Remaining"];
-    let csv="data:text/csv;charset=utf-8,"+headers.join(",")+"\n";
-    history.forEach(r=>{csv+=[r.date,r.time,r.equity,r.profit,r.sl,r.lot,r.pip,r.remaining].join(",")+"\n";});
-    const link=document.createElement("a"); link.setAttribute("href",encodeURI(csv));
-    link.setAttribute("download",`gold_history_${formatDate(new Date())}.csv`);
-    document.body.appendChild(link); link.click(); document.body.removeChild(link);
-};
-
-// Dark Mode
-document.getElementById("darkModeSelect").onchange=()=>{
-    if(document.getElementById("darkModeSelect").value==='on') document.body.classList.add("dark-mode");
-    else document.body.classList.remove("dark-mode");
-};
-
-// Charts
-function updateCharts(){
-    const history = JSON.parse(localStorage.getItem("calcHistory")||"[]").reverse();
-    const weeklyLabels=[], weeklyData=[], monthlyLabels=[], monthlyData=[];
-    history.forEach(h=>{
-        const d = new Date(h.date);
-        const weekNum = Math.ceil(d.getDate()/7);
-        weeklyLabels.push(`W${weekNum} ${d.getMonth()+1}`); weeklyData.push(parseFloat(h.equity));
-        monthlyLabels.push(`${d.getMonth()+1}/${d.getFullYear()}`); monthlyData.push(parseFloat(h.equity));
-    });
-    if(window.weekChart) window.weekChart.destroy();
-    window.weekChart=new Chart(document.getElementById("weeklyChart"),{type:'line',data:{labels:weeklyLabels,datasets:[{label:'Equity',data:weeklyData,borderColor:'blue',backgroundColor:'lightblue'}]}});
-    if(window.monthChart) window.monthChart.destroy();
-    window.monthChart=new Chart(document.getElementById("monthlyChart"),{type:'line',data:{labels:monthlyLabels,datasets:[{label:'Equity',data:monthlyData,borderColor:'green',backgroundColor:'lightgreen'}]}});
-}
-
-// Load history & charts on start
-window.onload=()=>{
-    loadHistory('all');
-    updateCharts();
-};
 </script>
 
 </body>
